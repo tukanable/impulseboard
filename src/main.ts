@@ -40,7 +40,7 @@ const actions = [
 ];
 
 const getAction = ({ label, description, count }, idx: number) => `
-  <div class="p-2 shadow-md text-sm rounded-lg bg-white m-2 flex flex-col items-center justify-between w-24 min-h-28" data-action-idx="${idx}">
+  <div class="p-2 shadow-md text-sm rounded-lg m-2 flex flex-col items-center justify-between w-24 min-h-28" data-action-idx="${idx}">
     <div class="text-center">
       ${label}
     </div>
@@ -58,7 +58,7 @@ const getHeader = () => `
       </div>
       <div class="flex-none">
         <ul class="menu menu-horizontal px-1">
-          <li><a href="/about.html">Editor</a></li>
+          <li><a href="/editor.html">Editor</a></li>
           <li><a href="/about.html">About</a></li>
         </ul>
       </div>
@@ -66,11 +66,19 @@ const getHeader = () => `
   </div>
 `;
 
+actions.forEach(action => {
+  const count = localStorage.getItem(action.label);
+  action.count = count ? +count : 0;
+});
+
 const renderAll = () => {
   const html = `
     ${getHeader()}
     <div class="flex flex-wrap justify-center">
       ${actions.map(getAction).join('')}
+    </div>
+    <div class="position-fixed absolute inset-0 bg-white z-50 flex items-center justify-center text-center hidden message p-10">
+      ???
     </div>
   `;
 
@@ -78,6 +86,16 @@ const renderAll = () => {
 };
 
 renderAll();
+
+function showMessage(message: string) {
+  const messageEl = document.querySelector('.message');
+  messageEl.classList.remove('hidden');
+  messageEl.textContent = message;
+
+  setTimeout(() => {
+    messageEl.classList.add('hidden');
+  }, 2000);
+}
 
 document.addEventListener('click', (e) => {
   const actionEl = e.target.closest('[data-action-idx]');
@@ -89,5 +107,9 @@ document.addEventListener('click', (e) => {
 
     const countEl = actionEl.querySelector('.count');
     countEl.textContent = action.count;
+
+    showMessage(action.description);
+
+    localStorage.setItem(action.label, action.count);
   }
 });
