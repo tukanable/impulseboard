@@ -1,6 +1,12 @@
 import './styles.css';
 
-const actions = [
+type Action = {
+  label: string;
+  description: string;
+  count?: number;
+};
+
+const actions: Action[] = [
   {
     label: 'Покурить позже',
     description: 'Подожди 10 минут, и если желание останется — сделай это.',
@@ -39,7 +45,7 @@ const actions = [
   },
 ];
 
-const getAction = ({ label, description, count }, idx: number) => `
+const getAction = ({ label, count }: Action, idx: number) => `
   <div class="p-2 shadow-md text-sm rounded-lg m-2 flex flex-col items-center justify-between w-24 min-h-28" data-action-idx="${idx}">
     <div class="text-center">
       ${label}
@@ -89,6 +95,11 @@ renderAll();
 
 function showMessage(message: string) {
   const messageEl = document.querySelector('.message');
+  if (!messageEl) {
+    alert('message element not found');
+    return;
+  }
+
   messageEl.classList.remove('hidden');
   messageEl.textContent = message;
 
@@ -98,18 +109,27 @@ function showMessage(message: string) {
 }
 
 document.addEventListener('click', (e) => {
-  const actionEl = e.target.closest('[data-action-idx]');
+  if (!e.target) {
+    return;
+  }
+
+  const actionEl = (e.target as Element).closest('[data-action-idx]');
   const actionIdx = actionEl?.getAttribute('data-action-idx');
 
-  if (actionIdx !== undefined) {
+  if (actionEl && actionIdx !== undefined && actionIdx !== null) {
     const action = actions[+actionIdx];
     action.count = action.count ? action.count + 1 : 1;
 
     const countEl = actionEl.querySelector('.count');
-    countEl.textContent = action.count;
+    if (!countEl) {
+      alert('count element not found');
+      return;
+    }
+
+    countEl.textContent = action.count.toString();
 
     showMessage(action.description);
 
-    localStorage.setItem(action.label, action.count);
+    localStorage.setItem(action.label, action.count.toString());
   }
 });
